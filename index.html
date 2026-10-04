@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nova AI Video</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0b1020;color:#fff;min-height:100vh}
+.wrap{max-width:700px;margin:auto;padding:28px 18px}
+h1{font-size:34px;margin:0 0 8px}.sub{color:#aeb8d0;margin-bottom:24px}
+.card{background:#151d33;border:1px solid #293450;border-radius:18px;padding:20px}
+label{display:block;margin-bottom:8px;font-weight:700}
+textarea{width:100%;min-height:130px;border-radius:12px;border:1px solid #35415f;background:#0e1527;color:#fff;padding:14px;font-size:16px;resize:vertical}
+button{width:100%;margin-top:14px;padding:15px;border:0;border-radius:12px;background:#fff;color:#101522;font-size:17px;font-weight:700;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}.status{margin-top:16px;color:#aeb8d0;min-height:24px}
+video{width:100%;margin-top:18px;border-radius:14px;background:#000;display:none}
+.note{font-size:13px;color:#8995b2;margin-top:16px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Nova AI Video 🎬</h1>
+  <div class="sub">Turn a simple idea into an AI video.</div>
+  <div class="card">
+    <label for="prompt">Describe your video</label>
+    <textarea id="prompt" placeholder="Example: A cute fluffy cat singing a baby poem beside a happy baby, colorful nursery, cinematic HD..."></textarea>
+    <button id="generate">Generate Video</button>
+    <div class="status" id="status"></div>
+    <video id="video" controls playsinline></video>
+    <button id="download" style="display:none">Download Video</button>
+    <div class="note">Starter interface only. Connect your secure backend/API endpoint before using Generate in production.</div>
+  </div>
+</div>
+<script>
+const btn=document.getElementById('generate');
+const status=document.getElementById('status');
+const video=document.getElementById('video');
+const download=document.getElementById('download');
+
+btn.onclick=async()=>{
+  const prompt=document.getElementById('prompt').value.trim();
+  if(!prompt){status.textContent='Please describe the video first.';return;}
+  btn.disabled=true; video.style.display='none'; download.style.display='none';
+  status.textContent='Generating your video...';
+  try{
+    const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.error||'Generation failed');
+    video.src=data.video_url; video.style.display='block';
+    download.style.display='block';
+    download.onclick=()=>{const a=document.createElement('a');a.href=data.video_url;a.download='nova-ai-video.mp4';a.click()};
+    status.textContent='Your video is ready! 🎉';
+  }catch(e){status.textContent='Demo mode: connect the video API to generate real videos.';}
+  finally{btn.disabled=false;}
+};
+</script>
+</body>
+</html>
