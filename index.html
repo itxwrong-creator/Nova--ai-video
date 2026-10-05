@@ -43,7 +43,7 @@ btn.onclick=async()=>{
   btn.disabled=true; video.style.display='none'; download.style.display='none';
   status.textContent='Generating your video...';
   try{
-    const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    const r=await fetch('https://nova-ai-video-iztahvkj1-nova-ai20.vercel.app/api/generate',{
     const data=await r.json();
     if(!r.ok) throw new Error(data.error||'Generation failed');
     video.src=data.video_url; video.style.display='block';
